@@ -22,4 +22,4 @@ class TaskHistorySerializer(ModelSerializer):
 
     class Meta:
         model = TaskHistory
-        fields = ["id", "old_status", "new_status", "updation_date", "task"]
+        exclude = ['id']

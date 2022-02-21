@@ -47,5 +47,5 @@ class TaskHistoryViewSet(ReadOnlyModelViewSet):
     def get_queryset(self):
         return TaskHistory.objects.filter(
             task_id=self.kwargs["pk"],
-
+            task_id__user=self.request.user
         )

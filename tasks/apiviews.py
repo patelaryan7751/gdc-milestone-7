@@ -1,11 +1,7 @@
-from tasks.models import Task, TaskHistory
-from tasks.models import STATUS_CHOICES
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from tasks.models import Task, TaskHistory, STATUS_CHOICES
 from tasks.serializers import TaskSerializer, TaskHistorySerializer
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import ListAPIView
 from django_filters.rest_framework import (
     DjangoFilterBackend,
     FilterSet,
@@ -41,7 +37,7 @@ class TaskHistoryFilter(FilterSet):
     updation_date = IsoDateTimeFilter()
 
 
-class TaskHistoryAllViewSet(ListAPIView):
+class TaskHistoryViewSet(ReadOnlyModelViewSet):
     queryset = TaskHistory.objects.all()
     serializer_class = TaskHistorySerializer
     permission_classes = (IsAuthenticated,)
@@ -49,15 +45,7 @@ class TaskHistoryAllViewSet(ListAPIView):
     filterset_class = TaskHistoryFilter
 
     def get_queryset(self):
-        id = self.kwargs["pk"]
-        if Task.objects.filter(id=id, user=self.request.user, deleted=False).exists():
-            return TaskHistory.objects.filter(task_id=id)
-        return TaskHistory.objects.none()
+        return TaskHistory.objects.filter(
+            task_id=self.kwargs["pk"],
 
-
-class TaskHistoryViewSet(ListAPIView):
-    queryset = TaskHistory.objects.all()
-    serializer_class = TaskHistorySerializer
-    permission_classes = (IsAuthenticated,)
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = TaskHistoryFilter
+        )
